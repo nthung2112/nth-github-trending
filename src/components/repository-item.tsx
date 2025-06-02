@@ -54,7 +54,7 @@ export function RepositoryCard({ repository: repo }: RepositoryCardProps) {
               {repo.name}
             </a>
           </CardTitle>
-          <p className="mt-1 text-sm text-gray-600">
+          <p className="text-muted-foreground mt-1 text-sm">
             Built by · {repo.owner.login} · {formatDate(repo.created_at)}
           </p>
         </div>
@@ -63,7 +63,7 @@ export function RepositoryCard({ repository: repo }: RepositoryCardProps) {
         <CardDescription className="mb-4 min-h-[2.5rem]">
           {repo.description || "No description given."}
         </CardDescription>
-        <div className="flex items-center gap-4 text-sm text-gray-600">
+        <div className="text-muted-foreground flex items-center gap-4 text-sm">
           <div className="flex items-center gap-1">
             <div className="h-3 w-3 rounded-full bg-blue-500"></div>
             <span>{repo.language}</span>
