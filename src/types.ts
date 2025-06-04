@@ -117,7 +117,6 @@ export interface Owner {
 
 export type RepositoryFilters = {
   language?: string;
-  viewType?: string;
   dateJump?: string;
   token?: string;
 };

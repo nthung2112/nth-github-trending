@@ -1,8 +1,8 @@
 import { AlertCircle, GitFork, Star } from "lucide-react";
 
+import type { RepositoryItem } from "@/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import type { RepositoryItem } from "@/types";
 
 interface RepositoryCardProps {
   repository: RepositoryItem;
