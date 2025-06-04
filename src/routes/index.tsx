@@ -8,6 +8,7 @@ import { AlertCircle, Calendar, Github, Grid3X3, List, Rewind } from "lucide-rea
 import type { Repository, RepositoryFilters } from "@/types";
 import type { QueryClient } from "@tanstack/react-query";
 import { fetchTrending } from "@/api/repository";
+import { AddTokenModal } from "@/components/add-token-modal";
 import { LanguageSelect } from "@/components/language-select";
 import { LoadingSpinner } from "@/components/loading-spinner";
 import { RepositoryHeader } from "@/components/repository-header";
@@ -66,6 +67,7 @@ export const Route = createFileRoute("/")({
 export default function GitHuntApp() {
   const { ref, inView } = useInView();
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [showTokenModal, setShowTokenModal] = useState(false);
   const { filters, setFilters } = useFilters(Route.fullPath);
   const dateJump = filters.dateJump || "weeks";
 
@@ -80,6 +82,11 @@ export default function GitHuntApp() {
 
   const updateDateJump = (value: string) => {
     setFilters({ dateJump: value });
+  };
+
+  const handleTokenSave = (token: string) => {
+    setFilters({ token });
+    setShowTokenModal(false);
   };
 
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -116,9 +123,12 @@ export default function GitHuntApp() {
           <AlertDescription>
             <div>
               Make sure to{" "}
-              <a href="#" className="text-blue-600 underline">
+              <button
+                onClick={() => setShowTokenModal(true)}
+                className="text-blue-600 underline hover:text-blue-800"
+              >
                 add a token
-              </a>{" "}
+              </button>{" "}
               to avoid hitting the rate limit
             </div>
           </AlertDescription>
@@ -210,6 +220,13 @@ export default function GitHuntApp() {
             </Button>
           )}
         </div>
+
+        {/* Add Token Modal */}
+        <AddTokenModal
+          open={showTokenModal}
+          onOpenChange={setShowTokenModal}
+          onTokenSave={handleTokenSave}
+        />
       </div>
     </div>
   );
