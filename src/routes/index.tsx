@@ -3,6 +3,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { startOfDay, sub } from "date-fns";
 import { AlertCircle, Calendar, Github, Grid3X3, List } from "lucide-react";
 
+import type { RepositoryFilters } from "@/types";
+import { fetchTrending } from "@/api/repository";
 import { LanguageSelect } from "@/components/language-select";
 import { RepositoryHeader } from "@/components/repository-header";
 import { RepositoryCard } from "@/components/repository-item";
@@ -16,49 +18,42 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useFilters } from "@/hooks/useFilters";
 import useGithubStore from "@/store/github-store";
-import usePreferenceStore from "@/store/preference-store";
 
 export const Route = createFileRoute("/")({
   component: GitHuntApp,
-});
-
-export default function GitHuntApp() {
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-
-  const { fetchTrending, repositories } = useGithubStore();
-  const { options, dateJump, updateDateJump, language, updateLanguage } = usePreferenceStore();
-
-  useEffect(() => {
+  validateSearch: (search) => search as RepositoryFilters,
+  loaderDeps: ({ search: { language, token, dateJump } }) => ({
+    language,
+    token,
+    dateJump,
+  }),
+  loader: async ({ deps: { language = "", token, dateJump = "weeks" } }) => {
     const dateRange = { start: new Date(), end: new Date() };
-    const lastRecords = repositories[repositories.length - 1];
-
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    if (lastRecords) {
-      // Replace moment with date-fns functions
-      dateRange.start = startOfDay(sub(new Date(lastRecords.start), { [dateJump]: 1 }));
-      dateRange.end = new Date(lastRecords.start);
-    } else {
-      // Use date-fns for creating dates
-      dateRange.start = startOfDay(sub(new Date(), { [dateJump]: 1 }));
-      dateRange.end = startOfDay(new Date());
-    }
+    // Use date-fns for creating dates
+    dateRange.start = startOfDay(sub(new Date(), { [dateJump]: 1 }));
+    dateRange.end = startOfDay(new Date());
 
     const filters = {
       language,
       dateRange,
-      token: options.token || "",
+      token,
     };
 
-    // fetchTrending(filters);
-  }, []);
+    return await fetchTrending(filters);
+  },
+});
 
-  // formatDate moved to RepositoryCard component
+export default function GitHuntApp() {
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const { filters, setFilters } = useFilters(Route.fullPath);
 
-  const getTimeAgo = () => {
-    const now = new Date();
-    const weekAgo = new Date(now.getTime() - 8 * 24 * 60 * 60 * 1000);
-    return `${Math.ceil((now.getTime() - weekAgo.getTime()) / (1000 * 60 * 60 * 24))} days ago`;
+  const repositories = Route.useLoaderData();
+
+  const dateJump = filters.dateJump || "weeks";
+  const updateDateJump = (value: string) => {
+    setFilters({ dateJump: value });
   };
 
   return (

@@ -114,3 +114,10 @@ export interface Owner {
   user_view_type: string;
   site_admin: boolean;
 }
+
+export type RepositoryFilters = {
+  language?: string;
+  viewType?: string;
+  dateJump?: string;
+  token?: string;
+};

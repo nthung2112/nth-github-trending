@@ -12,12 +12,17 @@ import {
 } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { languages } from "@/constants/languages";
+import { useFilters } from "@/hooks/useFilters";
 import { cn } from "@/lib/utils";
-import usePreferenceStore from "@/store/preference-store";
+import { Route } from "@/routes";
 
 export function LanguageSelect() {
   const [open, setOpen] = useState(false);
-  const { language: value, updateLanguage: setValue } = usePreferenceStore();
+  const { filters, setFilters } = useFilters(Route.fullPath);
+  const value = filters.language || "";
+  const setValue = (newValue: string) => {
+    setFilters({ language: newValue });
+  };
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

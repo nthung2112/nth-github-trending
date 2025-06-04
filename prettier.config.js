@@ -18,8 +18,7 @@ const config = {
     "^(@?react-).+",
     "<THIRD_PARTY_MODULES>", // third party modules
     "",
-    "^types$", // types
-    "",
+    "<TYPES>",
     "^(@/|~/)", // local modules (starting with @/ or ~/)
     "",
     "^[./]", // relative imports
