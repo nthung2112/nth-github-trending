@@ -6,6 +6,7 @@ import { startOfDay, sub } from "date-fns";
 import { AlertCircle, Calendar, Github, Grid3X3, List, Rewind } from "lucide-react";
 
 import type { Repository, RepositoryFilters } from "@/types";
+import type { QueryClient } from "@tanstack/react-query";
 import { fetchTrending } from "@/api/repository";
 import { LanguageSelect } from "@/components/language-select";
 import { LoadingSpinner } from "@/components/loading-spinner";
@@ -56,7 +57,8 @@ export const Route = createFileRoute("/")({
     token,
     dateJump,
   }),
-  loader: ({ context: { queryClient }, deps }) => {
+  loader: ({ context, deps }) => {
+    const { queryClient } = context as { queryClient: QueryClient };
     return queryClient.ensureInfiniteQueryData(getRepositoriesQueryOptions(deps));
   },
 });
