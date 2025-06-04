@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { infiniteQueryOptions, useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { startOfDay, sub } from "date-fns";
 import { AlertCircle, Calendar, Github, Grid3X3, List, Rewind } from "lucide-react";
@@ -23,22 +23,13 @@ import {
 } from "@/components/ui/select";
 import { useFilters } from "@/hooks/useFilters";
 
-export const Route = createFileRoute("/")({
-  component: GitHuntApp,
-  validateSearch: (search) => search as RepositoryFilters,
-});
+const getRepositoriesQueryOptions = (deps: RepositoryFilters) => {
+  const dateJump = deps.dateJump || "weeks";
+  const language = deps.language || "";
+  const token = deps.token || "";
 
-export default function GitHuntApp() {
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const { filters, setFilters } = useFilters(Route.fullPath);
-  const { ref, inView } = useInView();
-
-  const dateJump = filters.dateJump || "weeks";
-  const language = filters.language || "";
-  const token = filters.token || "";
-
-  const { data, isFetching, isFetchingNextPage, fetchNextPage, hasNextPage } = useInfiniteQuery({
-    queryKey: ["repositories"],
+  return infiniteQueryOptions({
+    queryKey: ["repositories", deps],
     queryFn: async ({ pageParam }): Promise<Repository> => {
       return await fetchTrending(pageParam);
     },
@@ -48,15 +39,36 @@ export default function GitHuntApp() {
       endDate: startOfDay(new Date()),
       token,
     },
-    getNextPageParam: (lastPage) => {
-      return {
-        startDate: startOfDay(sub(new Date(lastPage.start), { [dateJump]: 1 })),
-        endDate: new Date(lastPage.start),
-        language,
-        token,
-      };
-    },
+    getNextPageParam: (lastPage) => ({
+      startDate: startOfDay(sub(new Date(lastPage.start), { [dateJump]: 1 })),
+      endDate: new Date(lastPage.start),
+      language,
+      token,
+    }),
   });
+};
+
+export const Route = createFileRoute("/")({
+  component: GitHuntApp,
+  validateSearch: (search) => search as RepositoryFilters,
+  loaderDeps: ({ search: { language, token, dateJump } }) => ({
+    language,
+    token,
+    dateJump,
+  }),
+  loader: ({ context: { queryClient }, deps }) => {
+    return queryClient.ensureInfiniteQueryData(getRepositoriesQueryOptions(deps));
+  },
+});
+
+export default function GitHuntApp() {
+  const { ref, inView } = useInView();
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const { filters, setFilters } = useFilters(Route.fullPath);
+  const dateJump = filters.dateJump || "weeks";
+
+  const { data, isFetching, isFetchingNextPage, fetchNextPage, hasNextPage } =
+    useSuspenseInfiniteQuery(getRepositoriesQueryOptions(filters));
 
   useEffect(() => {
     if (inView) {
@@ -68,6 +80,7 @@ export default function GitHuntApp() {
     setFilters({ dateJump: value });
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   const repositories = data?.pages || [];
 
   return (
