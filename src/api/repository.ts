@@ -5,7 +5,8 @@ import type { Repository } from "@/types";
 const API_URL = "https://api.github.com/search/repositories";
 
 const transformFilters = (filters: {
-  dateRange: { start: string | Date; end: string | Date };
+  startDate: string | Date;
+  endDate: string | Date;
   language?: string;
 }) => {
   const transformedFilters: { q: string; sort: string; order: string } = {
@@ -14,8 +15,8 @@ const transformFilters = (filters: {
     order: "desc",
   };
 
-  const startDate = new Date(filters.dateRange.start);
-  const endDate = new Date(filters.dateRange.end);
+  const startDate = new Date(filters.startDate);
+  const endDate = new Date(filters.endDate);
 
   // Format dates in ISO format (YYYY-MM-DDTHH:mm:ss.SSSZ)
   const formattedStart = formatISO(startDate);
@@ -30,10 +31,11 @@ const transformFilters = (filters: {
 };
 
 export const fetchTrending = async (filters: {
-  dateRange: { start: string | Date; end: string | Date };
+  startDate: string | Date;
+  endDate: string | Date;
   language?: string;
   token?: string;
-}) => {
+}): Promise<Repository> => {
   try {
     const params = new URLSearchParams(transformFilters(filters)).toString();
     const response = await fetch(`${API_URL}?${params}`, {
@@ -47,13 +49,11 @@ export const fetchTrending = async (filters: {
     }
     const data = await response.json();
 
-    return [
-      {
-        start: formatISO(new Date(filters.dateRange.start)),
-        end: formatISO(new Date(filters.dateRange.end)),
-        data,
-      },
-    ] as Array<Repository>;
+    return {
+      start: formatISO(new Date(filters.startDate)),
+      end: formatISO(new Date(filters.endDate)),
+      data: data.items,
+    };
   } catch (error: any) {
     // Error handling
     let message = error.response?.data?.message;

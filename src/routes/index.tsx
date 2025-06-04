@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
+import { useInView } from "react-intersection-observer";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { startOfDay, sub } from "date-fns";
-import { AlertCircle, Calendar, Github, Grid3X3, List } from "lucide-react";
+import { AlertCircle, Calendar, Github, Grid3X3, List, Rewind } from "lucide-react";
 
-import type { RepositoryFilters } from "@/types";
+import type { Repository, RepositoryFilters } from "@/types";
 import { fetchTrending } from "@/api/repository";
 import { LanguageSelect } from "@/components/language-select";
+import { LoadingSpinner } from "@/components/loading-spinner";
 import { RepositoryHeader } from "@/components/repository-header";
 import { RepositoryCard } from "@/components/repository-item";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -19,42 +22,53 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useFilters } from "@/hooks/useFilters";
-import useGithubStore from "@/store/github-store";
 
 export const Route = createFileRoute("/")({
   component: GitHuntApp,
   validateSearch: (search) => search as RepositoryFilters,
-  loaderDeps: ({ search: { language, token, dateJump } }) => ({
-    language,
-    token,
-    dateJump,
-  }),
-  loader: async ({ deps: { language = "", token, dateJump = "weeks" } }) => {
-    const dateRange = { start: new Date(), end: new Date() };
-    // Use date-fns for creating dates
-    dateRange.start = startOfDay(sub(new Date(), { [dateJump]: 1 }));
-    dateRange.end = startOfDay(new Date());
-
-    const filters = {
-      language,
-      dateRange,
-      token,
-    };
-
-    return await fetchTrending(filters);
-  },
 });
 
 export default function GitHuntApp() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const { filters, setFilters } = useFilters(Route.fullPath);
-
-  const repositories = Route.useLoaderData();
+  const { ref, inView } = useInView();
 
   const dateJump = filters.dateJump || "weeks";
+  const language = filters.language || "";
+  const token = filters.token || "";
+
+  const { data, isFetching, isFetchingNextPage, fetchNextPage, hasNextPage } = useInfiniteQuery({
+    queryKey: ["repositories"],
+    queryFn: async ({ pageParam }): Promise<Repository> => {
+      return await fetchTrending(pageParam);
+    },
+    initialPageParam: {
+      language,
+      startDate: startOfDay(sub(new Date(), { [dateJump]: 1 })),
+      endDate: startOfDay(new Date()),
+      token,
+    },
+    getNextPageParam: (lastPage) => {
+      return {
+        startDate: startOfDay(sub(new Date(lastPage.start), { [dateJump]: 1 })),
+        endDate: new Date(lastPage.start),
+        language,
+        token,
+      };
+    },
+  });
+
+  useEffect(() => {
+    if (inView) {
+      fetchNextPage();
+    }
+  }, [fetchNextPage, inView]);
+
   const updateDateJump = (value: string) => {
     setFilters({ dateJump: value });
   };
+
+  const repositories = data?.pages || [];
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
@@ -159,12 +173,28 @@ export default function GitHuntApp() {
                   : "space-y-4"
               }
             >
-              {repository.data.items.map((repo) => (
-                <RepositoryCard repository={repo} />
+              {repository.data.map((repo) => (
+                <RepositoryCard key={repo.id} repository={repo} />
               ))}
             </div>
           </div>
         ))}
+
+        <div className="mt-6 flex justify-center text-center" ref={ref}>
+          {isFetching ? (
+            <LoadingSpinner size={80} />
+          ) : (
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() => fetchNextPage()}
+              disabled={!hasNextPage || isFetchingNextPage}
+            >
+              <Rewind />
+              Load previous {dateJump}
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );

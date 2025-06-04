@@ -1,7 +1,7 @@
 export type Repository = {
   start: string;
   end: string;
-  data: GithubRepository;
+  data: Array<RepositoryItem>;
 };
 
 export interface GithubRepository {
