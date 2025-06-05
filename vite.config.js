@@ -16,4 +16,5 @@ export default defineConfig({
       "@": resolve(__dirname, "./src"),
     },
   },
+  base: "/nth-github-trending/",
 });
