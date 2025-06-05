@@ -102,7 +102,9 @@ export default function GitHuntApp() {
               <Github className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">GitHunt</h1>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                NTH GitHub Trending
+              </h1>
               <p className="text-gray-600 dark:text-gray-400">Most starred projects on GitHub</p>
             </div>
           </div>
