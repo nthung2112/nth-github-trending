@@ -25,7 +25,7 @@ export function RepositoryList({ repositories, viewMode }: RepositoryListProps) 
             }
           >
             {repository.data.map((repo) => (
-              <RepositoryCard key={repo.id} repository={repo} />
+              <RepositoryCard key={repo.id} repository={repo} viewMode={viewMode} />
             ))}
           </div>
         </div>

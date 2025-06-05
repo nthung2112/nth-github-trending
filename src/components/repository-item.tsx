@@ -3,9 +3,11 @@ import { AlertCircle, GitFork, Star } from "lucide-react";
 import type { RepositoryItem } from "@/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 interface RepositoryCardProps {
   repository: RepositoryItem;
+  viewMode?: "grid" | "list";
 }
 
 const formatDate = (dateString: string) => {
@@ -17,10 +19,16 @@ const formatDate = (dateString: string) => {
   });
 };
 
-export function RepositoryCard({ repository: repo }: RepositoryCardProps) {
+export function RepositoryCard({ repository: repo, viewMode = "grid" }: RepositoryCardProps) {
+  // Use list view layout when viewMode is list, otherwise use standard card layout
+  const isListView = viewMode === "list";
+
   return (
-    <Card className="gap-2 transition-shadow hover:shadow-lg" key={repo.id}>
-      <CardHeader className="pb-3">
+    <Card
+      className={cn("group gap-2 transition-all hover:shadow-lg", isListView && "flex flex-row")}
+      key={repo.id}
+    >
+      <CardHeader className={cn("pb-3", isListView && "flex-[3] pr-2 pb-6")}>
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
             <Avatar className="h-10 w-10">
@@ -59,15 +67,32 @@ export function RepositoryCard({ repository: repo }: RepositoryCardProps) {
           </p>
         </div>
       </CardHeader>
-      <CardContent className="pt-0">
-        <CardDescription className="mb-4 line-clamp-3 min-h-[2.5rem] text-balance">
+      <CardContent
+        className={cn(
+          "pt-0",
+          isListView && "flex flex-[7] flex-col justify-between border-l pt-6 pl-6"
+        )}
+      >
+        <CardDescription
+          className={cn(
+            "mb-4 line-clamp-3 min-h-[2.5rem] text-balance",
+            isListView && "mb-6 line-clamp-none text-base"
+          )}
+        >
           {repo.description || "No description given."}
         </CardDescription>
-        <div className="text-muted-foreground flex items-center gap-4 text-sm">
-          <div className="flex items-center gap-1">
-            <div className="h-3 w-3 rounded-full bg-blue-500"></div>
-            <span>{repo.language}</span>
-          </div>
+        <div
+          className={cn(
+            "text-muted-foreground flex items-center gap-4 text-sm",
+            isListView && "mt-auto flex-wrap justify-end gap-6"
+          )}
+        >
+          {repo.language && (
+            <div className="flex items-center gap-1">
+              <div className="h-3 w-3 rounded-full bg-blue-500" />
+              <span>{repo.language}</span>
+            </div>
+          )}
           <div className="flex items-center gap-1">
             <Star className="h-3 w-3" />
             <span>{repo.stargazers_count.toLocaleString()}</span>
