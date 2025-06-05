@@ -60,7 +60,7 @@ export function RepositoryCard({ repository: repo }: RepositoryCardProps) {
         </div>
       </CardHeader>
       <CardContent className="pt-0">
-        <CardDescription className="mb-4 min-h-[2.5rem]">
+        <CardDescription className="mb-4 line-clamp-3 min-h-[2.5rem] text-balance">
           {repo.description || "No description given."}
         </CardDescription>
         <div className="text-muted-foreground flex items-center gap-4 text-sm">

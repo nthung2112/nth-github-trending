@@ -152,7 +152,7 @@ export default function GitHuntApp() {
             <LanguageSelect />
 
             <Select value={dateJump} onValueChange={updateDateJump}>
-              <SelectTrigger className="w-32">
+              <SelectTrigger className="bg-background hover:bg-accent hover:text-accent-foreground w-32 shadow-xs">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
