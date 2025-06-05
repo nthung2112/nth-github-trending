@@ -31,15 +31,15 @@ export function LanguageSelect() {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[200px] justify-between"
+          className="w-full justify-between sm:w-[200px]"
         >
           {value
             ? languages.find((framework) => framework.value === value)?.title
-            : "Select framework..."}
+            : "Select language..."}
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
+      <PopoverContent className="w-full p-0 sm:w-[200px]">
         <Command>
           <CommandInput placeholder="Search framework..." className="h-9" />
           <CommandList>

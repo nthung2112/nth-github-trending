@@ -28,8 +28,8 @@ export function RepositoryFilters({
   onViewModeChange,
 }: RepositoryFiltersProps) {
   return (
-    <div className="mb-6 flex items-center justify-start md:justify-between">
-      <div className="flex items-center gap-4">
+    <div className="mb-6 flex flex-col justify-between gap-4 md:flex-row md:items-center">
+      <div className="flex items-center">
         {repository && (
           <div className="flex items-center gap-2">
             <Calendar className="h-4 w-4 text-gray-500" />
@@ -37,11 +37,11 @@ export function RepositoryFilters({
           </div>
         )}
       </div>
-      <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center gap-2 sm:gap-4">
         <LanguageSelect />
 
         <Select value={dateJump} onValueChange={onDateJumpChange}>
-          <SelectTrigger className="bg-background hover:bg-accent hover:text-accent-foreground w-32 shadow-xs">
+          <SelectTrigger className="bg-background hover:bg-accent hover:text-accent-foreground w-full shadow-xs sm:w-32">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>

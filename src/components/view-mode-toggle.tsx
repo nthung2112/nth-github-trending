@@ -9,7 +9,7 @@ interface ViewModeToggleProps {
 
 export function ViewModeToggle({ viewMode, onViewModeChange }: ViewModeToggleProps) {
   return (
-    <div className="flex items-center rounded-lg border">
+    <div className="hidden items-center justify-center rounded-lg border sm:flex">
       <Button
         variant={viewMode === "grid" ? "default" : "ghost"}
         size="sm"
