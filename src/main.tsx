@@ -21,6 +21,7 @@ const router = createRouter({
   // This will ensure that the loader is always called when the route is preloaded or visited
   defaultPreloadStaleTime: 0,
   scrollRestoration: true,
+  basepath: "/nth-github-trending/",
 });
 
 // Register the router instance for type safety
