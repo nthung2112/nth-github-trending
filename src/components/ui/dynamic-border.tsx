@@ -20,7 +20,7 @@ export function DynamicBorder({ children }: DynamicBorderProps) {
 
     throttleTimeout.current = setTimeout(() => {
       throttleTimeout.current = null;
-    }, 1000);
+    }, 100);
   };
 
   useEffect(() => {
