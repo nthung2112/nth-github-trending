@@ -2,6 +2,8 @@ import type { Repository } from "@/types";
 import { RepositoryHeader } from "@/components/repository-header";
 import { RepositoryCard } from "@/components/repository-item";
 
+import { DynamicBorder } from "./ui/dynamic-border";
+
 interface RepositoryListProps {
   repositories: Array<Repository>;
   viewMode: "grid" | "list";
@@ -25,7 +27,9 @@ export function RepositoryList({ repositories, viewMode }: RepositoryListProps) 
             }
           >
             {repository.data.map((repo) => (
-              <RepositoryCard key={repo.id} repository={repo} viewMode={viewMode} />
+              <DynamicBorder key={repo.id}>
+                <RepositoryCard repository={repo} viewMode={viewMode} />
+              </DynamicBorder>
             ))}
           </div>
         </div>

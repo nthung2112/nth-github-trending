@@ -25,7 +25,7 @@ export function RepositoryCard({ repository: repo, viewMode = "grid" }: Reposito
 
   return (
     <Card
-      className={cn("group gap-2 transition-all hover:shadow-lg", isListView && "flex flex-row")}
+      className={cn("group h-full gap-2 border-0", isListView && "flex flex-row")}
       key={repo.id}
     >
       <CardHeader className={cn("pb-3", isListView && "flex-[3] pr-2 pb-6")}>
